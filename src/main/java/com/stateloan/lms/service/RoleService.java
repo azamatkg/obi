@@ -97,11 +97,21 @@ public class RoleService {
     }
     
     public Role addPermissionToRole(Long roleId, Long permissionId) {
-        Role role = roleRepository.findByIdWithPermissions(roleId)
-                .orElseThrow(() -> new RuntimeException("Role not found with id: " + roleId));
+        logger.debug("Attempting to add permission {} to role {}", permissionId, roleId);
         
-        Permission permission = permissionRepository.findById(permissionId)
-                .orElseThrow(() -> new RuntimeException("Permission not found with id: " + permissionId));
+        Optional<Role> roleOpt = roleRepository.findByIdWithPermissions(roleId);
+        if (!roleOpt.isPresent()) {
+            logger.error("Role not found with id: {}", roleId);
+            throw new RuntimeException("Role not found with id: " + roleId);
+        }
+        Role role = roleOpt.get();
+        
+        Optional<Permission> permissionOpt = permissionRepository.findById(permissionId);
+        if (!permissionOpt.isPresent()) {
+            logger.error("Permission not found with id: {}", permissionId);
+            throw new RuntimeException("Permission not found with id: " + permissionId);
+        }
+        Permission permission = permissionOpt.get();
         
         role.addPermission(permission);
         

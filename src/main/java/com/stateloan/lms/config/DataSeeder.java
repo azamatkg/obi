@@ -31,9 +31,16 @@ public class DataSeeder implements CommandLineRunner {
     
     @Override
     public void run(String... args) throws Exception {
-        seedPermissions();
-        seedRoles();
-        seedUsers();
+        try {
+            seedPermissions();
+            seedRoles();
+            seedUsers();
+
+            logger.info("Seeding initial data completed successfully");
+        } catch (Exception e) {
+            logger.error("Error during data seeding: {}", e.getMessage(), e);
+            throw e;
+        }
     }
     
     private void seedPermissions() {
@@ -76,6 +83,8 @@ public class DataSeeder implements CommandLineRunner {
         if (!roleService.existsByName("ADMIN")) {
             Role adminRole = new Role("ADMIN", "System Administrator with full access");
             adminRole = roleService.createRole(adminRole);
+            // Refresh the role to ensure we have the correct ID
+            adminRole = roleService.findByName("ADMIN").orElse(adminRole);
             
             // Assign all permissions to ADMIN
             List<Permission> allPermissions = permissionService.findAll();
@@ -89,6 +98,8 @@ public class DataSeeder implements CommandLineRunner {
         if (!roleService.existsByName("USER")) {
             Role userRole = new Role("USER", "Regular user with limited access");
             userRole = roleService.createRole(userRole);
+            // Refresh the role to ensure we have the correct ID
+            userRole = roleService.findByName("USER").orElse(userRole);
             
             // Assign basic permissions to USER
             List<String> userPermissions = Arrays.asList(
@@ -109,6 +120,8 @@ public class DataSeeder implements CommandLineRunner {
         if (!roleService.existsByName("LOAN_OFFICER")) {
             Role loanOfficerRole = new Role("LOAN_OFFICER", "Loan Officer with loan processing capabilities");
             loanOfficerRole = roleService.createRole(loanOfficerRole);
+            // Refresh the role to ensure we have the correct ID
+            loanOfficerRole = roleService.findByName("LOAN_OFFICER").orElse(loanOfficerRole);
             
             // Assign loan processing permissions
             List<String> loanOfficerPermissions = Arrays.asList(
@@ -130,6 +143,8 @@ public class DataSeeder implements CommandLineRunner {
         if (!roleService.existsByName("MANAGER")) {
             Role managerRole = new Role("MANAGER", "Manager with approval and oversight capabilities");
             managerRole = roleService.createRole(managerRole);
+            // Refresh the role to ensure we have the correct ID
+            managerRole = roleService.findByName("MANAGER").orElse(managerRole);
             
             // Assign management permissions
             List<String> managerPermissions = Arrays.asList(
